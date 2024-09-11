@@ -2,11 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Enhanced Interactive VR A-Frame Scene</title>
-    <meta name="description" content="Enhanced Interactive VR A-Frame Scene with Floating Objects">
+    <title>Immersive VR Scene with Floating Objects</title>
+    <meta name="description" content="Immersive VR Scene with Objects Floating Around User">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://unpkg.com/aframe-animation-component@5.1.2/dist/aframe-animation-component.min.js"></script>
   </head>
   <body>
@@ -24,56 +23,74 @@
       </a-assets>
 
       <!-- 360-degree image background -->
-      <a-sky id="image-360" radius="10" src="#sky"></a-sky>
+      <a-sky id="image-360" radius="30" src="#sky"></a-sky>
 
       <!-- Interactive VR objects -->
       <a-entity id="vr-content">
-        <a-box class="interactive" position="0 1.5 -3" rotation="0 45 0" width="1" height="1" material="src: #sprandco-logo"
-               animation="property: position; to: 0 1.7 -3; dir: alternate; dur: 2000; loop: true"
+        <a-box class="interactive" id="sprandco-box" material="src: #sprandco-logo"
+               animation="property: rotation; to: 360 360 0; loop: true; dur: 10000"
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
         </a-box>
         
-        <a-box class="interactive" position="3 1.5 -2" rotation="0 45 0" width="1" height="1" material="src: #Compliance-Management-Tool"
-               animation="property: position; to: 3 1.8 -2; dir: alternate; dur: 2200; loop: true"
+        <a-box class="interactive" id="compliance-box" material="src: #Compliance-Management-Tool"
+               animation="property: rotation; to: 360 0 360; loop: true; dur: 12000"
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
         </a-box>
         
-        <a-box class="interactive" position="-3 1.5 -2" rotation="0 -45 0" width="1" height="1" material="src: #Inventory-Management-System"
-               animation="property: position; to: -3 1.9 -2; dir: alternate; dur: 2400; loop: true"
+        <a-box class="interactive" id="inventory-box" material="src: #Inventory-Management-System"
+               animation="property: rotation; to: 0 360 360; loop: true; dur: 15000"
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
         </a-box>
         
-        <a-box class="interactive" position="0 2.5 -4" rotation="0 0 0" width="1" height="1" material="src: #Weighbridge-Management-System"
-               animation="property: position; to: 0 2.8 -4; dir: alternate; dur: 2600; loop: true"
+        <a-box class="interactive" id="weighbridge-box" material="src: #Weighbridge-Management-System"
+               animation="property: rotation; to: 360 360 360; loop: true; dur: 18000"
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
         </a-box>
       </a-entity>
 
       <!-- Text feedback entity -->
-      <a-entity id="feedback-text" position="0 2 -3" text="value: ; align: center; color: #FFF; width: 2" visible="false"></a-entity>
+      <a-entity id="feedback-text" position="0 0 -3" text="value: ; align: center; color: #FFF; width: 2" visible="false"></a-entity>
 
       <!-- Camera and cursor -->
       <a-entity id="rig" movement-controls="constrainToNavMesh: false;">
-        <a-entity camera look-controls position="0 1.6 0">
-          <a-entity cursor="fuse: true; fuseTimeout: 500"
-                    position="0 0 -1"
-                    geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                    material="color: white; shader: flat"
-                    raycaster="objects: .interactive">
-          </a-entity>
-        </a-entity>
-        
-        <!-- VR Controllers -->
-        <a-entity oculus-touch-controls="hand: left"></a-entity>
-        <a-entity oculus-touch-controls="hand: right"></a-entity>
+        <a-camera>
+          <a-cursor id="cursor" animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                    animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                    event-set__mouseenter="_event: mouseenter; color: springgreen"
+                    event-set__mouseleave="_event: mouseleave; color: black"
+                    raycaster="objects: .interactive"></a-cursor>
+        </a-camera>
       </a-entity>
+      
+      <!-- VR Controllers -->
+      <a-entity oculus-touch-controls="hand: left"></a-entity>
+      <a-entity oculus-touch-controls="hand: right" laser-controls raycaster="objects: .interactive;"></a-entity>
     </a-scene>
 
     <script>
+      // Function to generate a random position on a sphere
+      function randomSpherePoint(radius) {
+        var u = Math.random();
+        var v = Math.random();
+        var theta = 2 * Math.PI * u;
+        var phi = Math.acos(2 * v - 1);
+        var x = radius * Math.sin(phi) * Math.cos(theta);
+        var y = radius * Math.sin(phi) * Math.sin(theta);
+        var z = radius * Math.cos(phi);
+        return {x: x, y: y, z: z};
+      }
+
+      // Position objects randomly around the user
+      var radius = 5; // Distance from the center
+      document.querySelectorAll('.interactive').forEach(function (el) {
+        var position = randomSpherePoint(radius);
+        el.setAttribute('position', position);
+      });
+
       AFRAME.registerComponent('click-handler', {
         init: function () {
           var el = this.el;
@@ -87,6 +104,14 @@
             // Show feedback text
             feedbackText.setAttribute('text', 'value', 'Clicked: ' + el.id);
             feedbackText.setAttribute('visible', true);
+            
+            // Update feedback text position to always face the user
+            var cameraEl = document.querySelector('[camera]');
+            var cameraPosition = cameraEl.getAttribute('position');
+            var direction = new THREE.Vector3().subVectors(cameraPosition, el.getAttribute('position')).normalize();
+            var textPosition = new THREE.Vector3().addVectors(el.getAttribute('position'), direction.multiplyScalar(1));
+            feedbackText.setAttribute('position', textPosition);
+            feedbackText.setAttribute('look-at', '[camera]');
             
             // Hide feedback text after 2 seconds
             setTimeout(function () {
@@ -107,6 +132,24 @@
       document.querySelectorAll('.interactive').forEach(function (el) {
         el.setAttribute('click-handler', '');
       });
+
+      // Function to slowly move objects around
+      function moveObjects() {
+        document.querySelectorAll('.interactive').forEach(function (el) {
+          var currentPosition = el.getAttribute('position');
+          var newPosition = randomSpherePoint(radius);
+          el.setAttribute('animation__position', {
+            property: 'position',
+            dur: 20000 + Math.random() * 10000,
+            easing: 'easeInOutSine',
+            to: newPosition.x + ' ' + newPosition.y + ' ' + newPosition.z
+          });
+        });
+        setTimeout(moveObjects, 30000); // Move objects every 30 seconds
+      }
+
+      // Start moving objects
+      moveObjects();
     </script>
   </body>
 </html>
