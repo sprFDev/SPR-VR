@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Immersive VR Scene with Floating Objects</title>
+    <title>Immersive VR Scene with Single 3DoF Controller Support</title>
     <meta name="description" content="Immersive VR Scene with Objects Floating Around User">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
@@ -17,9 +17,6 @@
         <img id="Compliance-Management-Tool"  src="02-Invoice-Management-System.png" alt="Sprandco Logo">
         <img id="Inventory-Management-System" src="03-Inventory-Management-System.png" alt="Sprandco Logo">
         <img id="Weighbridge-Management-System" src="04-Weighbridge-Management-System.png" alt="Sprandco Logo">
-        <img id="vr_headset" src="vr_headset.png" alt="Sprandco Logo">
-        <img id="image_01" src="image_01.JPG" alt="Sprandco Logo">
-        <img id="image_02" src="image_02.JPG" alt="Sprandco Logo">
       </a-assets>
 
       <!-- 360-degree image background -->
@@ -66,9 +63,8 @@
         </a-camera>
       </a-entity>
       
-      <!-- VR Controllers -->
-      <a-entity oculus-touch-controls="hand: left"></a-entity>
-      <a-entity oculus-touch-controls="hand: right" laser-controls raycaster="objects: .interactive;"></a-entity>
+      <!-- Single 3DoF Controller -->
+      <a-entity laser-controls="hand: right" raycaster="objects: .interactive;" line="color: #FF00FF"></a-entity>
     </a-scene>
 
     <script>
@@ -150,6 +146,25 @@
 
       // Start moving objects
       moveObjects();
+
+      // Add movement controls for 3DoF controller
+      AFRAME.registerComponent('controller-movement', {
+        init: function () {
+          var el = this.el;
+          var rig = document.querySelector('#rig');
+          
+          el.addEventListener('trackpaddown', function (event) {
+            var rotation = el.object3D.rotation;
+            var direction = new THREE.Vector3(0, 0, -1);
+            direction.applyQuaternion(el.object3D.quaternion);
+            direction.multiplyScalar(0.1); // Adjust speed here
+            rig.object3D.position.add(direction);
+          });
+        }
+      });
+
+      // Add controller-movement component to the controller
+      document.querySelector('[laser-controls]').setAttribute('controller-movement', '');
     </script>
   </body>
 </html>
