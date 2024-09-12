@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Application</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@5.1.2/dist/aframe-animation-component.min.js"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function VRScene({ sceneName, videoSrc, onBackClick }) {
+            useEffect(() => {
+                const scene = document.querySelector('a-scene');
+                if (scene && scene.enterVR) {
+                    setTimeout(() => {
+                        scene.enterVR().catch(error => {
+                            console.error('Failed to enter VR mode:', error);
+                        });
+                    }, 1000);
+                }
+            }, []);
+
+            return (
+                <a-scene>
+                    <a-assets>
+                        <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+                        <img id="sky" src="stunning-starry-sky.jpg" />
+                        <img id="back-btn" src="back.png" />
+                        <video id={`video-${sceneName}`} autoPlay loop src={videoSrc}></video>
+                    </a-assets>
+
+                    <a-sky id="image-360" radius="30" src="#sky"></a-sky>
+
+                    <a-entity id="vr-content">
+                        <a-box
+                            rotation="-14 0 -0"
+                            position="0 0 5"
+                            width="1"
+                            height=".5"
+                            class="interactive"
+                            id="back-button"
+                            material="src: #back-btn"
+                            event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
+                            event-set__leave="_event: mouseleave; scale: 1 1 1"
+                            onClick={onBackClick}
+                        ></a-box>
+                        <a-video
+                            position="0 2 -7"
+                            src={`#video-${sceneName}`}
+                            width="4"
+                            height="2"
+                            look-at="[camera]"
+                        ></a-video>
+                    </a-entity>
+
+                    <a-entity id="rig" movement-controls="constrainToNavMesh: false;">
+                        <a-camera>
+                            <a-cursor
+                                id="cursor"
+                                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                                animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                                event-set__mouseenter="_event: mouseenter; color: springgreen"
+                                event-set__mouseleave="_event: mouseleave; color: black"
+                                raycaster="objects: .interactive"
+                            ></a-cursor>
+                        </a-camera>
+                    </a-entity>
+
+                    <a-entity oculus-touch-controls="hand: left"></a-entity>
+                    <a-entity oculus-touch-controls="hand: right" laser-controls raycaster="objects: .interactive;"></a-entity>
+                </a-scene>
+            );
+        }
+
+        function MainScene({ onSceneChange }) {
+            useEffect(() => {
+                const scene = document.querySelector('a-scene');
+                if (scene && scene.enterVR) {
+                    setTimeout(() => {
+                        scene.enterVR().catch(error => {
+                            console.error('Failed to enter VR mode:', error);
+                        });
+                    }, 1000);
+                }
+            }, []);
+
+            const randomSpherePoint = (radius) => {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u;
+                const phi = Math.acos(2 * v - 1);
+                const x = radius * Math.sin(phi) * Math.cos(theta);
+                const y = radius * Math.sin(phi) * Math.sin(theta);
+                const z = radius * Math.cos(phi);
+                return { x, y, z };
+            };
+
+            const boxes = [
+                { id: 'Invoice-box', src: '#sprandco-logo', scene: 'invoice' },
+                { id: 'compliance-box', src: '#Compliance-Management-Tool', scene: 'compliance' },
+                { id: 'inventory-box', src: '#Inventory-Management-System', scene: 'inventory' },
+                { id: 'weighbridge-box', src: '#Weighbridge-Management-System', scene: 'weighbridge' }
+            ];
+
+            return (
+                <a-scene>
+                    <a-assets>
+                        <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+                        <img id="sky" src="stunning-starry-sky.jpg" />
+                        <img id="sprandco-logo" src="01Compliance_Management_Tool.png" alt="Sprandco Logo" />
+                        <img id="Compliance-Management-Tool" src="02-Invoice-Management-System.png" alt="Sprandco Logo" />
+                        <img id="Inventory-Management-System" src="03-Inventory-Management-System.png" alt="Sprandco Logo" />
+                        <img id="Weighbridge-Management-System" src="04-Weighbridge-Management-System.png" alt="Sprandco Logo" />
+                    </a-assets>
+
+                    <a-sky id="image-360" radius="30" src="#sky"></a-sky>
+
+                    <a-entity id="vr-content">
+                        {boxes.map((box, index) => {
+                            const position = randomSpherePoint(5);
+                            return (
+                                <a-box
+                                    key={box.id}
+                                    class="interactive"
+                                    id={box.id}
+                                    material={`src: ${box.src}`}
+                                    position={`${position.x} ${position.y} ${position.z}`}
+                                    animation={`property: rotation; to: 360 360 360; loop: true; dur: ${10000 + index * 3000}`}
+                                    event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
+                                    event-set__leave="_event: mouseleave; scale: 1 1 1"
+                                    onClick={() => onSceneChange(box.scene)}
+                                ></a-box>
+                            );
+                        })}
+                    </a-entity>
+
+                    <a-entity id="rig" movement-controls="constrainToNavMesh: false;">
+                        <a-camera>
+                            <a-cursor
+                                id="cursor"
+                                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                                animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                                event-set__mouseenter="_event: mouseenter; color: springgreen"
+                                event-set__mouseleave="_event: mouseleave; color: black"
+                                raycaster="objects: .interactive"
+                            ></a-cursor>
+                        </a-camera>
+                    </a-entity>
+
+                    <a-entity oculus-touch-controls="hand: left"></a-entity>
+                    <a-entity oculus-touch-controls="hand: right" laser-controls raycaster="objects: .interactive;"></a-entity>
+                </a-scene>
+            );
+        }
+
+        function App() {
+            const [currentScene, setCurrentScene] = useState('main');
+
+            const handleSceneChange = (sceneName) => {
+                setCurrentScene(sceneName);
+            };
+
+            const handleBackClick = () => {
+                setCurrentScene('main');
+            };
+
+            const sceneMap = {
+                main: <MainScene onSceneChange={handleSceneChange} />,
+                invoice: <VRScene sceneName="invoice" videoSrc="Invoice_Management_System.mp4" onBackClick={handleBackClick} />,
+                compliance: <VRScene sceneName="compliance" videoSrc="complianceApp.mp4" onBackClick={handleBackClick} />,
+                inventory: <VRScene sceneName="inventory" videoSrc="Inventory_Management_System.mp4" onBackClick={handleBackClick} />,
+                weighbridge: <VRScene sceneName="weighbridge" videoSrc="WMS_Tranz_Portal.mp4" onBackClick={handleBackClick} />,
+            };
+
+            return sceneMap[currentScene] || sceneMap.main;
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

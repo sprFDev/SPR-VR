@@ -1,0 +1,194 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Immersive VR Scene with Floating Objects</title>
+    <meta name="description" content="Immersive VR Scene with Objects Floating Around User">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@5.1.2/dist/aframe-animation-component.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-assets>
+        <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
+        <img id="sky" src="stunning-starry-sky.jpg">
+        <img id="sprandco-logo" src="01Compliance_Management_Tool.png" alt="Sprandco Logo">
+        <img id="Compliance-Management-Tool" src="02-Invoice-Management-System.png" alt="Sprandco Logo">
+        <img id="Inventory-Management-System" src="03-Inventory-Management-System.png" alt="Sprandco Logo">
+        <img id="Weighbridge-Management-System" src="04-Weighbridge-Management-System.png" alt="Sprandco Logo">
+        <img id="vr_headset" src="vr_headset.png" alt="Sprandco Logo">
+        <img id="image_01" src="image_01.JPG" alt="Sprandco Logo">
+        <img id="image_02" src="image_02.JPG" alt="Sprandco Logo">
+        <img id="back-btn" src="back.png">
+        <video id="Inventory_Management_System" autoplay loop="true" src="Inventory_Management_System.mp4"></video> 
+
+      </a-assets>
+
+      <!-- 360-degree image background -->
+      <a-sky id="image-360" radius="30" src="#sky"></a-sky>
+
+      <!-- Interactive VR objects -->
+      <a-entity id="vr-content">
+        
+        
+        <a-box rotation="-14 0 -0"  position="0 0 5"  width="1" height=".5" title="Click to GO tab_Index.html" class="interactive" id="weighbridge-box" material="src: #back-btn"
+              
+               event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
+               event-set__leave="_event: mouseleave; scale: 1 1 1">
+        </a-box>
+        <a-video
+        position="0 2 -7" 
+        src="#Inventory_Management_System"
+        width="4"
+        height="2"
+        look-at="[camera]"
+       ></a-video>
+
+      </a-entity>
+
+      <!-- Text feedback entity -->
+      <a-entity id="feedback-text" position="0 0 -3" text="value: ; align: center; color: #FFF; width: 2" visible="false"></a-entity>
+
+      <!-- Camera and cursor -->
+      <a-entity id="rig" movement-controls="constrainToNavMesh: false;">
+        <a-camera>
+          <a-cursor id="cursor" animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                    animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                    event-set__mouseenter="_event: mouseenter; color: springgreen"
+                    event-set__mouseleave="_event: mouseleave; color: black"
+                    raycaster="objects: .interactive"></a-cursor>
+        </a-camera>
+      </a-entity>
+      
+      <!-- VR Controllers -->
+      <a-entity oculus-touch-controls="hand: left"></a-entity>
+      <a-entity oculus-touch-controls="hand: right" laser-controls raycaster="objects: .interactive;"></a-entity>
+    </a-scene>
+
+    <script>
+        // Function to handle VR mode entry
+        function enterVR() {
+        var scene = document.querySelector('a-scene');
+        // Check if the scene is loaded and if VR mode is available
+        if (scene && scene.enterVR) {
+          scene.enterVR().catch(function(error) {
+            console.error('Failed to enter VR mode:', error);
+          });
+        }
+      }
+        // Automatically enter VR mode when the scene is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('a-scene').addEventListener('loaded', function () {
+          // Allow time for initial setup before attempting to enter VR
+          setTimeout(enterVR, 1000); // Adjust the timeout as necessary
+        });
+      });
+      //   document.querySelector('a-scene').addEventListener('loaded', function () {
+      //   this.enterVR();
+      // });
+      // Function to generate a random position on a sphere
+      function randomSpherePoint(radius) {
+        var u = Math.random();
+        var v = Math.random();
+        var theta = 2 * Math.PI * u;
+        var phi = Math.acos(2 * v - 1);
+        var x = radius * Math.sin(phi) * Math.cos(theta);
+        var y = radius * Math.sin(phi) * Math.sin(theta);
+        var z = radius * Math.cos(phi);
+        return {x: x, y: y, z: z};
+      }
+
+      // Position objects randomly around the user
+      var radius = 5; // Distance from the center
+      document.querySelectorAll('.interactive').forEach(function (el) {
+        var position = randomSpherePoint(radius);
+        el.setAttribute('position', position);
+      });
+
+      AFRAME.registerComponent('click-handler', {
+        init: function () {
+          var el = this.el;
+          var feedbackText = document.querySelector('#feedback-text');
+          
+          el.addEventListener('click', function () {
+            // Play click sound
+            var clickSound = document.querySelector('#click-sound');
+            clickSound.play();
+            
+            // Show feedback text
+            feedbackText.setAttribute('text', 'value', 'Clicked: ' + el.id);
+            feedbackText.setAttribute('visible', true);
+            
+            // Update feedback text position to always face the user
+            var cameraEl = document.querySelector('[camera]');
+            var cameraPosition = cameraEl.getAttribute('position');
+            var direction = new THREE.Vector3().subVectors(cameraPosition, el.getAttribute('position')).normalize();
+            var textPosition = new THREE.Vector3().addVectors(el.getAttribute('position'), direction.multiplyScalar(1));
+            feedbackText.setAttribute('position', textPosition);
+            feedbackText.setAttribute('look-at', '[camera]');
+            
+            // Hide feedback text after 2 seconds
+            setTimeout(function () {
+              feedbackText.setAttribute('visible', false);
+            }, 2000);
+            
+            // Add click effect (e.g., brief color change)
+            var originalColor = el.getAttribute('material').color;
+            el.setAttribute('material', 'color', '#FFF');
+            setTimeout(function () {
+              el.setAttribute('material', 'color', originalColor);
+            }, 150);
+          });
+        }
+      });
+
+      // Add click-handler component to all interactive objects
+      document.querySelectorAll('.interactive').forEach(function (el) {
+        el.setAttribute('click-handler', '');
+      });
+
+      // Function to slowly move objects around
+      function moveObjects() {
+        // document.querySelectorAll('.interactive').forEach(function (el) {
+        //   var currentPosition = el.getAttribute('position');
+        //   var newPosition = randomSpherePoint(radius);
+        //   console.log('log working... rabilan');
+        //   el.setAttribute('animation__position', {
+        //     property: 'position',
+        //     dur: 20000 + Math.random() * 10000,
+        //     easing: 'easeInOutSine',
+        //     to: newPosition.x + ' ' + newPosition.y + ' ' + newPosition.z
+        //   });
+        // });
+        setTimeout(moveObjects, 30000); // Move objects every 30 seconds
+      }
+
+      // Add event listener to trigger smooth navigation on click
+      document.querySelector('#weighbridge-box').addEventListener('click', function () {
+        // Animate the camera (e.g., move back smoothly) before navigation
+        var camera = document.querySelector('a-camera');
+        camera.setAttribute('animation', {
+          property: 'position',
+          to: '0 1.6 -10',  // Smoothly move the camera backwards
+          dur: 2000,  // Duration of 2 seconds
+          easing: 'easeInOutQuad'
+        });
+
+        // Redirect to new page after the animation completes (2.5 seconds delay)
+        setTimeout(function () {
+          window.location.href = 'working.html'; // Replace with your target page
+        }, 2500);
+      });
+
+      // Start moving objects
+      moveObjects();
+    </script>
+  </body>
+</html>
+
+
+
+

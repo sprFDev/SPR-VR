@@ -13,8 +13,8 @@
       <a-assets>
         <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
         <img id="sky" src="stunning-starry-sky.jpg">
-        <img id="sprandco-logo" src="01Compliance_Management_Tool.png" alt="Sprandco Logo">
-        <img id="Compliance-Management-Tool" src="02-Invoice-Management-System.png" alt="Sprandco Logo">
+        <img   id="Compliance-Management-Tool" src="01Compliance_Management_Tool.png" alt="Sprandco Logo">
+        <img id="sprandco-logo" src="02-Invoice-Management-System.png" alt="Sprandco Logo">
         <img id="Inventory-Management-System" src="03-Inventory-Management-System.png" alt="Sprandco Logo">
         <img id="Weighbridge-Management-System" src="04-Weighbridge-Management-System.png" alt="Sprandco Logo">
         <img id="vr_headset" src="vr_headset.png" alt="Sprandco Logo">
@@ -27,7 +27,7 @@
 
       <!-- Interactive VR objects -->
       <a-entity id="vr-content">
-        <a-box class="interactive" id="sprandco-box" material="src: #sprandco-logo"
+        <a-box class="interactive" id="Invoice-box" material="src: #sprandco-logo"
                animation="property: rotation; to: 360 360 0; loop: true; dur: 10000"
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
@@ -170,7 +170,7 @@
       }
 
       // Add event listener to trigger smooth navigation on click
-      document.querySelector('#weighbridge-box').addEventListener('click', function () {
+      document.querySelector('#compliance-box').addEventListener('click', function () {
         // Animate the camera (e.g., move back smoothly) before navigation
         var camera = document.querySelector('a-camera');
         camera.setAttribute('animation', {
@@ -183,6 +183,54 @@
         // Redirect to new page after the animation completes (2.5 seconds delay)
         setTimeout(function () {
           window.location.href = 'complince.html'; // Replace with your target page
+        }, 2500);
+      });
+      // Add event listener to trigger smooth navigation on click
+      document.querySelector('#weighbridge-box').addEventListener('click', function () {
+        // Animate the camera (e.g., move back smoothly) before navigation
+        var camera = document.querySelector('a-camera');
+        camera.setAttribute('animation', {
+          property: 'position',
+          to: '0 1.6 -10',  // Smoothly move the camera backwards
+          dur: 2000,  // Duration of 2 seconds
+          easing: 'easeInOutQuad'
+        });
+
+        // Redirect to new page after the animation completes (2.5 seconds delay)
+        setTimeout(function () {
+          window.location.href = 'WMS_Tranz_Portal.html'; // Replace with your target page
+        }, 2500);
+      });
+      // Add event listener to trigger smooth navigation on click
+      document.querySelector('#inventory-box').addEventListener('click', function () {
+        // Animate the camera (e.g., move back smoothly) before navigation
+        var camera = document.querySelector('a-camera');
+        camera.setAttribute('animation', {
+          property: 'position',
+          to: '0 1.6 -10',  // Smoothly move the camera backwards
+          dur: 2000,  // Duration of 2 seconds
+          easing: 'easeInOutQuad'
+        });
+
+        // Redirect to new page after the animation completes (2.5 seconds delay)
+        setTimeout(function () {
+          window.location.href = 'Inventory_Management_System.html'; // Replace with your target page
+        }, 2500);
+      });
+      // Add event listener to trigger smooth navigation on click
+      document.querySelector('#Invoice-box').addEventListener('click', function () {
+        // Animate the camera (e.g., move back smoothly) before navigation
+        var camera = document.querySelector('a-camera');
+        camera.setAttribute('animation', {
+          property: 'position',
+          to: '0 1.6 -10',  // Smoothly move the camera backwards
+          dur: 2000,  // Duration of 2 seconds
+          easing: 'easeInOutQuad'
+        });
+
+        // Redirect to new page after the animation completes (2.5 seconds delay)
+        setTimeout(function () {
+          window.location.href = 'Invoice_Management_System.html'; // Replace with your target page
         }, 2500);
       });
 
