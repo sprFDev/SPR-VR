@@ -14,7 +14,7 @@
         <audio id="click-sound" src="https://cdn.aframe.io/360-image-gallery-boilerplate/audio/click.ogg"></audio>
         <img id="sky" src="stunning-starry-sky.jpg">
         <img id="sprandco-logo" src="01Compliance_Management_Tool.png" alt="Sprandco Logo">
-        <img id="Compliance-Management-Tool"  src="02-Invoice-Management-System.png" alt="Sprandco Logo">
+        <img id="Compliance-Management-Tool" src="02-Invoice-Management-System.png" alt="Sprandco Logo">
         <img id="Inventory-Management-System" src="03-Inventory-Management-System.png" alt="Sprandco Logo">
         <img id="Weighbridge-Management-System" src="04-Weighbridge-Management-System.png" alt="Sprandco Logo">
         <img id="vr_headset" src="vr_headset.png" alt="Sprandco Logo">
@@ -50,8 +50,6 @@
                event-set__enter="_event: mouseenter; scale: 1.2 1.2 1.2"
                event-set__leave="_event: mouseleave; scale: 1 1 1">
         </a-box>
-        <!-- <a-link href="index.html" id="navigation-box" title="My Homepage" event-
-        image="#Weighbridge-Management-System"></a-link> -->
       </a-entity>
 
       <!-- Text feedback entity -->
@@ -74,6 +72,26 @@
     </a-scene>
 
     <script>
+         // Function to handle VR mode entry
+         function enterVR() {
+        var scene = document.querySelector('a-scene');
+        // Check if the scene is loaded and if VR mode is available
+        if (scene && scene.enterVR) {
+          scene.enterVR().catch(function(error) {
+            console.error('Failed to enter VR mode:', error);
+          });
+        }
+      }
+        // Automatically enter VR mode when the scene is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('a-scene').addEventListener('loaded', function () {
+          // Allow time for initial setup before attempting to enter VR
+          setTimeout(enterVR, 1000); // Adjust the timeout as necessary
+        });
+      });
+      //   document.querySelector('a-scene').addEventListener('loaded', function () {
+      //   this.enterVR();
+      // });
       // Function to generate a random position on a sphere
       function randomSpherePoint(radius) {
         var u = Math.random();
@@ -140,7 +158,7 @@
         document.querySelectorAll('.interactive').forEach(function (el) {
           var currentPosition = el.getAttribute('position');
           var newPosition = randomSpherePoint(radius);
-         console.log('log working rabilan');
+          console.log('log working rabilan');
           el.setAttribute('animation__position', {
             property: 'position',
             dur: 20000 + Math.random() * 10000,
@@ -150,9 +168,22 @@
         });
         setTimeout(moveObjects, 30000); // Move objects every 30 seconds
       }
-      // Add event listener to trigger navigation on click
+
+      // Add event listener to trigger smooth navigation on click
       document.querySelector('#weighbridge-box').addEventListener('click', function () {
-        window.location.href = 'tab_Index.html'; // Replace with your target page
+        // Animate the camera (e.g., move back smoothly) before navigation
+        var camera = document.querySelector('a-camera');
+        camera.setAttribute('animation', {
+          property: 'position',
+          to: '0 1.6 -10',  // Smoothly move the camera backwards
+          dur: 2000,  // Duration of 2 seconds
+          easing: 'easeInOutQuad'
+        });
+
+        // Redirect to new page after the animation completes (2.5 seconds delay)
+        setTimeout(function () {
+          window.location.href = 'complince.html'; // Replace with your target page
+        }, 2500);
       });
 
       // Start moving objects
